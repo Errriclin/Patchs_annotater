@@ -1,0 +1,51 @@
+网格 Patch 手工标注工具 — 解压即用
+================================
+
+【环境】Windows 10/11，Python 3.10 或更高（安装时勾选 Add Python to PATH）
+
+【第一次使用】
+  1. 双击 install_deps.bat（仅首次，安装 Pillow）
+  2. 把带红色网格线的 JPG 放进 input\patch_grids\
+  3. （推荐）把每页的 rows/cols 参数放进 input\patch_grids\grid_metadata.json
+  4. 双击 run.bat 打开标注窗口
+
+【输入】input\patch_grids\
+  - 图片名: 0000_131_loungers_2023.jpg  （序号_image_index_sample_id.jpg）
+  - 参数 JSON 示例见 grid_metadata.json.example
+
+【输出】output\vidore2_patch_annotations_manual.json
+  - 所有页标注合并在一个文件里（数组格式）
+  - 标一页、点「下一张」都会自动保存
+  - 再次打开时自动跳到「已标注的最后一页」，不用从头翻
+
+【可选参数】命令行
+  --resume-skip-done  跳到第一张尚未写入 JSON 的页（适合连续标新页）
+  --start-page N      强制从第 N 页开始（0 为第一页）
+
+【操作】
+  - 单击格子: 选中/取消低语义 patch
+  - Shift+拖动: 框选添加（矩形内格子批量选中）
+  - Alt+拖动: 框选移除（矩形内已选格子批量取消）
+  - Z / Backspace: 撤销（含整批框选）
+  - 滚轮: 上下滚动
+  - Ctrl+滚轮: 缩放
+  - 下一张/上一张: 翻页
+
+【分发给他人】
+  将整个 grid_patch_annotator 文件夹打成 zip 发送即可。
+  对方解压到任意路径（路径尽量无中文更稳），按上面步骤操作。
+  不必安装本项目其它脚本（auto_annotate_next_90.py 等）。
+
+【常见问题】
+  - 找不到 Python: 安装 Python 并勾选 PATH，重开命令行
+  - 没有图片: 检查 JPG 是否在 input\patch_grids\ 且文件名格式正确
+  - 点击不准: 确认 grid_metadata.json 中 rows/cols 与画网格时一致
+  - 点「下一张」窗口未响应/卡很久:
+      1) 每一页 JPG 旁必须有同名参数 JSON（含 rows、cols），例如
+         0003_559_starbucks_2023.jpg 与 0003_559_starbucks_2023.json
+      2) 缺 JSON 时程序会从红线「识别网格」，大图可能要等 10～60 秒，属正常
+      3) 翻页前勿连点；等当前页显示完再点「下一张」
+      4) 已选 patch 很多时保存略慢，可点「保存」后稍等再翻页
+      5) 不要用 --validate-grid-inference（会故意变慢做校验）
+
+详细说明见 README.md

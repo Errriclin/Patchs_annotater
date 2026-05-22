@@ -1,0 +1,26 @@
+发给组员时请打包整个 grid_patch_annotator 文件夹为 zip。
+
+【必须包含】
+  annotate.py
+  grid_geometry.py
+  legacy_json.py
+  run.bat
+  install_deps.bat
+  requirements.txt
+  使用说明.txt
+  README.md
+  input\  （含 patch_grids\、README.txt、grid_metadata.json.example）
+  output\ （可为空，含 README.txt）
+
+【不要打包（可减小体积）】
+  __pycache__\
+  *.pyc
+  smashed_pages\  （旧版残留，工具不需要）
+  output\vidore2_patch_annotations_manual.json  （若不想带上你的标注结果）
+
+【组员电脑需要】
+  Python 3.10+（Windows 安装包勾选 Add to PATH）
+  首次双击 install_deps.bat，之后双击 run.bat
+
+【路径】
+  解压到任意盘符均可，不要改文件夹内脚本相对位置。
