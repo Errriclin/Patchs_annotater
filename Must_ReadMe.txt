@@ -1,0 +1,3 @@
+在Github下载本工具后，双击run.bat文件会出现若干“不是内部或外部命令”的提示窗口一闪而关
+这是因为git后bat文件出现了Windows和Unix系统下换行符格式冲突问题，解决方式如下：
+在vscode中打开run.bat（如未安装pillow环境则install_deps.bat也要操作，步骤同下），点击右下角的LF改成CRLF，保存即可正常运行。
