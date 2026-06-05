@@ -17,7 +17,7 @@ import sys
 import tkinter as tk
 from dataclasses import dataclass
 from pathlib import Path
-from tkinter import messagebox, ttk
+from tkinter import messagebox, simpledialog, ttk
 from typing import Any
 
 TOOL_DIR = Path(__file__).resolve().parent
@@ -540,6 +540,14 @@ def parse_args() -> argparse.Namespace:
         help="On startup, jump to the first page not yet present in --output JSON.",
     )
     parser.add_argument(
+        "--no-start-dialog",
+        action="store_true",
+        help=(
+            "Do not ask which page to open on startup. "
+            "Useful for scripted runs or when keeping the old automatic behavior."
+        ),
+    )
+    parser.add_argument(
         "--validate-grid-inference",
         action="store_true",
         help=(
@@ -770,6 +778,38 @@ def resolve_start_index(
         return start_page
 
     return resolve_last_annotated_index(entries, records_by_index)
+
+
+def prompt_start_index(
+    root: tk.Tk,
+    entries: list[PageEntry],
+    default_index: int,
+    *,
+    start_page: int | None,
+    resume_skip_done: bool,
+    no_start_dialog: bool,
+) -> int:
+    """Ask for a 1-based start page unless command-line startup control is active."""
+    if no_start_dialog or resume_skip_done or start_page is not None or not entries:
+        return default_index
+
+    page_count = len(entries)
+    default_page = min(max(default_index + 1, 1), page_count)
+    chosen = simpledialog.askinteger(
+        "选择起始图片",
+        (
+            f"共有 {page_count} 张图片。\n"
+            f"请输入要从第几张开始标注/复检（1-{page_count}）。\n\n"
+            f"取消 = 自动打开默认位置（第 {default_page} 张）。"
+        ),
+        parent=root,
+        minvalue=1,
+        maxvalue=page_count,
+        initialvalue=default_page,
+    )
+    if chosen is None:
+        return default_index
+    return chosen - 1
 
 
 def patch_id_at_boundaries(
@@ -1536,11 +1576,22 @@ def main() -> None:
             file=sys.stderr,
         )
 
-    start_index = resolve_start_index(
+    default_start_index = resolve_start_index(
         entries,
         records_by_index,
         args.start_page,
         args.resume_skip_done,
+    )
+
+    root = tk.Tk()
+    root.withdraw()
+    start_index = prompt_start_index(
+        root,
+        entries,
+        default_start_index,
+        start_page=args.start_page,
+        resume_skip_done=args.resume_skip_done,
+        no_start_dialog=args.no_start_dialog,
     )
     if start_index > 0 or records_by_index:
         entry = entries[start_index]
@@ -1550,7 +1601,7 @@ def main() -> None:
             file=sys.stderr,
         )
 
-    root = tk.Tk()
+    root.deiconify()
     GridPatchAnnotatorApp(
         root=root,
         entries=entries,
